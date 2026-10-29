@@ -31,6 +31,7 @@ pub enum AppState {
     GameOver,
     GamePaused,
     Quit,
+    KeyBindings,
 }
 
 /// Simple layout container for button definitions.
@@ -73,6 +74,7 @@ impl Menu {
         let click1 = window.is_key_pressed(Key::Key1, KeyRepeat::No);
         let click2 = window.is_key_pressed(Key::Key2, KeyRepeat::No);
         let click3 = window.is_key_pressed(Key::Key3, KeyRepeat::No);
+        let click4 = window.is_key_pressed(Key::Key4, KeyRepeat::No);
 
         // Render titles
         Self::draw_text_centered(
@@ -97,14 +99,14 @@ impl Menu {
         // Define button layouts
         let btn_start = ButtonDef {
             x: 230,
-            y: 160,
+            y: 140,
             w: 340,
             h: 50,
             text: "[1] NEW GAME".to_string(),
         };
         let btn_load = ButtonDef {
             x: 230,
-            y: 230,
+            y: 200,
             w: 340,
             h: 50,
             text: "[2] LOAD MAP".to_string(),
@@ -117,15 +119,23 @@ impl Menu {
         };
         let btn_audio = ButtonDef {
             x: 230,
-            y: 300,
+            y: 260,
             w: 340,
             h: 50,
             text: audio_text.to_string(),
         };
 
+        let btn_key_bindings = ButtonDef {
+            x: 230,
+            y: 320,
+            w: 340,
+            h: 50,
+            text: "[4] KEY BINDINGS".to_string(),
+        };
+
         let btn_quit = ButtonDef {
             x: 230,
-            y: 370,
+            y: 380,
             w: 340,
             h: 50,
             text: "[ESC] QUIT GAME".to_string(),
@@ -155,12 +165,35 @@ impl Menu {
             return AppState::StartScreen;
         }
 
+        if self.draw_flat_button(buffer, &btn_key_bindings, mx, my) && clicked || click4 {
+            return AppState::KeyBindings;
+        }
+
         if self.draw_flat_button(buffer, &btn_quit, mx, my) && clicked {
             return AppState::Quit;
         }
 
         // Keep looping in the menu until an action changes the state
         AppState::StartScreen
+    }
+
+    pub fn update_and_draw_key_bindings(
+        &mut self,
+        window: &mut Window,
+        buffer: &mut [u32],
+        game: &mut Game,
+    ) -> AppState {
+        buffer.fill(COL_BG_GAMEOVER);
+        Self::draw_text_centered(
+            buffer,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            "KEY BINDINGS",
+            80,
+            6,
+            COL_TITLE_RED,
+        );
+        AppState::KeyBindings
     }
 
     /// Renders the death screen and allows the user to save their current level progress.

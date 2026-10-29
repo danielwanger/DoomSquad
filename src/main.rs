@@ -118,6 +118,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
+            AppState::KeyBindings => {
+                window.set_cursor_visibility(true);
+
+                if escape_clicked {
+                    app_state = AppState::StartScreen;
+                } else {
+                    app_state =
+                        menu.update_and_draw_key_bindings(&mut window, &mut buffer, &mut game);
+                }
+            }
+
             AppState::GameOver => {
                 window.set_cursor_visibility(true);
 
