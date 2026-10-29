@@ -2,6 +2,7 @@
 
 mod audio;
 mod game;
+mod keybindings;
 mod menu;
 mod parser;
 mod render;
