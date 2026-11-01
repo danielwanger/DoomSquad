@@ -1,4 +1,4 @@
-use minifb::Key;
+use minifb::{Key, KeyRepeat, Window};
 use std::collections::HashMap;
 
 #[derive(PartialEq, Eq, Hash)]
@@ -51,5 +51,21 @@ impl Default for KeyBindings {
         map.insert(Action::LockEnemies, Key::L);
         map.insert(Action::Exit, Key::Escape);
         Self { map }
+    }
+}
+
+impl KeyBindings {
+    pub fn is_down(&self, window: &Window, action: Action) -> bool {
+        match self.map.get(&action) {
+            Some(key) => window.is_key_down(*key),
+            None => false,
+        }
+    }
+
+    pub fn is_pressed(&self, window: &Window, action: Action) -> bool {
+        match self.map.get(&action) {
+            Some(key) => window.is_key_pressed(*key, KeyRepeat::No),
+            None => false,
+        }
     }
 }
