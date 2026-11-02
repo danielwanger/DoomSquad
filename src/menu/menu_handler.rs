@@ -10,6 +10,7 @@ use std::fs;
 
 use crate::audio::audio_handler::Audio;
 use crate::game::gamestate::Game;
+use crate::keybindings::{Action, KeyBindings};
 use crate::render::RendererData;
 
 const SCREEN_WIDTH: usize = 800;
@@ -48,12 +49,14 @@ struct ButtonDef {
 /// we only need to manually track the mouse state for edge detection (clicks).
 pub struct Menu {
     was_mouse_down: bool,
+    capturing: Option<Action>,
 }
 
 impl Menu {
     pub fn new() -> Self {
         Self {
             was_mouse_down: false,
+            capturing: None,
         }
     }
 
@@ -181,18 +184,62 @@ impl Menu {
         &mut self,
         window: &mut Window,
         buffer: &mut [u32],
-        game: &mut Game,
+        key_bindings: &mut KeyBindings,
     ) -> AppState {
         buffer.fill(COL_BG_GAMEOVER);
+
+        let (mx, my, clicked) = self.get_mouse_state(window);
+
+        if let Some(action) = self.capturing {
+            if let Some(key) = window.get_keys_pressed(KeyRepeat::No).first() {
+                key_bindings.set(action, *key);
+                self.capturing = None;
+            }
+        } else if key_bindings.is_pressed(window, Action::Exit) {
+            return AppState::StartScreen;
+        }
+
         Self::draw_text_centered(
             buffer,
             SCREEN_WIDTH,
             SCREEN_HEIGHT,
             "KEY BINDINGS",
-            80,
-            6,
+            10,
+            3,
             COL_TITLE_RED,
         );
+
+        for (i, action) in Action::ALL.into_iter().enumerate() {
+            let key_text = if self.capturing == Some(action) {
+                "PRESS A KEY".to_string()
+            } else {
+                match key_bindings.key_for(action) {
+                    Some(key) => format!("{:?}", key),
+                    None => "-".to_string(),
+                }
+            };
+            let btn = ButtonDef {
+                x: 130,
+                y: 38 + i * 20,
+                w: 540,
+                h: 18,
+                text: format!("{}: {}", action.label(), key_text),
+            };
+            if self.draw_flat_button(buffer, &btn, mx, my) && clicked && self.capturing.is_none() {
+                self.capturing = Some(action);
+            }
+        }
+
+        Self::draw_text_centered(
+            buffer,
+            SCREEN_WIDTH,
+            SCREEN_HEIGHT,
+            "CLICK AN ACTION, THEN PRESS A KEY. EXIT KEY = BACK",
+            428,
+            1,
+            COL_TEXT_WHITE,
+        );
+
         AppState::KeyBindings
     }
 
