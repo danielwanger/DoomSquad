@@ -1,6 +1,7 @@
 use super::map::Map;
 use crate::game::generate_entities::generate_entities;
 use crate::game::player::LastInputDirection::*;
+use crate::keybindings::KeyBindings;
 use crate::{
     SCREEN_HEIGHT,
     audio::audio_handler::Audio,
@@ -168,6 +169,7 @@ impl Player {
     pub fn update(
         &mut self,
         window: &Window,
+        key_bindings: &KeyBindings,
         map: &Map,
         renderer_data: &RendererData,
         audio: &mut Audio,

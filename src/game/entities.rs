@@ -1,4 +1,5 @@
-use minifb::{Key, Window};
+use crate::keybindings::{Action, KeyBindings};
+use minifb::Window;
 
 use crate::audio::audio_handler::Audio;
 use crate::game::entities::EntityType::*;
@@ -194,6 +195,7 @@ impl Entity {
     pub fn update(
         &mut self,
         window: &Window,
+        key_bindings: &KeyBindings,
         map: &Map,
         player_mover: &Mover,
         renderer_data: &RendererData,
@@ -201,7 +203,7 @@ impl Entity {
     ) -> Vec<EntityEvent> {
         //collect all Spawn events for gamestate
         let mut events: Vec<EntityEvent> = Vec::new();
-        if window.is_key_pressed(Key::L, minifb::KeyRepeat::No) {
+        if key_bindings.is_pressed(window, Action::LockEnemies) {
             self.movement_locked = !self.movement_locked;
         }
 
